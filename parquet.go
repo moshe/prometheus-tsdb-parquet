@@ -69,15 +69,15 @@ func NewParquetWriter(outputPath string, shardSize int) (*ParquetWriter, error) 
 }
 
 type Line struct {
-	Metric         map[string]string `parquet:"name=Metric, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY"`
-	NumberOfValues int               `parquet:"name=NumberOfValues, type=INT64"`
-	Hash           string            `parquet:"name=Hash, type=BYTE_ARRAY"`
-	MetricName     string            `parquet:"name=MetricName, type=BYTE_ARRAY"`
-	MinTimestamp   int64             `parquet:"name=MinTimestamp, type=INT64"`
-	MaxTimestamp   int64             `parquet:"name=MaxTimestamp, type=INT64"`
-	MinValue       float64           `parquet:"name=MinValue, type=FLOAT"`
-	MaxValue       float64           `parquet:"name=MaxValue, type=FLOAT"`
-	Size           int               `parquet:"name=Size, type=INT64"`
+	Labels          map[string]string `parquet:"name=Labels, type=MAP, convertedtype=MAP, keytype=BYTE_ARRAY, keyconvertedtype=UTF8, valuetype=BYTE_ARRAY"`
+	NumberOfSamples int               `parquet:"name=NumberOfSamples, type=INT64"`
+	Hash            string            `parquet:"name=Hash, type=BYTE_ARRAY"`
+	MetricName      string            `parquet:"name=MetricName, type=BYTE_ARRAY"`
+	MinTimestamp    int64             `parquet:"name=MinTimestamp, type=INT64"`
+	MaxTimestamp    int64             `parquet:"name=MaxTimestamp, type=INT64"`
+	MinValue        float64           `parquet:"name=MinValue, type=FLOAT"`
+	MaxValue        float64           `parquet:"name=MaxValue, type=FLOAT"`
+	Size            int               `parquet:"name=Size, type=INT64"`
 }
 
 func (w *ParquetWriter) Write(line *Line) error {

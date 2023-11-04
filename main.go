@@ -17,12 +17,16 @@ import (
 
 func main() {
 	blockPath := flag.String("block", "", "Path to block directory")
-	outputPath := flag.String("output", "", "Path to parquet directory")
-	shardSize := flag.Int("shard-size", 3_000_000, "Max number of series in a parquet file")
+	outputPath := flag.String("output", "", "Path to output parquet directory")
+	shardSize := flag.Int("shard-size", 3_000_000, "Maximum number of series in a single parquet file")
 	flag.Parse()
 
 	if *blockPath == "" {
 		log.Fatal("-block argument is required")
+	}
+
+	if *outputPath == "" {
+		log.Fatal("-output argument is required")
 	}
 
 	if err := run(*blockPath, *outputPath, *shardSize); err != nil {
@@ -74,7 +78,7 @@ func run(blockPath string, outputPath string, shardSize int) error {
 				return errors.Wrap(err, "chunkr.Chunk")
 			}
 
-			var numberOfValues = 0
+			var numberOfSamples = 0
 			var maxTimestamp int64 = 0
 			var minTimestamp int64 = 0
 			var minValue float64 = 0
@@ -103,20 +107,20 @@ func run(blockPath string, outputPath string, shardSize int) error {
 				if t < minTimestamp {
 					minTimestamp = t
 				}
-				numberOfValues += 1
+				numberOfSamples += 1
 			}
 			if it.Err() != nil {
 				return errors.Wrap(err, "iterator.Err")
 			}
 
 			if err := wr.Write(&Line{
-				Metric:         metric,
-				NumberOfValues: numberOfValues,
-				MetricName:     metric["__name__"],
-				MinTimestamp:   minTimestamp,
-				MaxTimestamp:   maxTimestamp,
-				MinValue:       minValue,
-				MaxValue:       maxValue,
+				Labels:          metric,
+				NumberOfSamples: numberOfSamples,
+				MetricName:      metric["__name__"],
+				MinTimestamp:    minTimestamp,
+				MaxTimestamp:    maxTimestamp,
+				MinValue:        minValue,
+				MaxValue:        maxValue,
 			}); err != nil {
 				return errors.Wrap(err, fmt.Sprintf("Writer.Write(%v)", metric))
 			}
